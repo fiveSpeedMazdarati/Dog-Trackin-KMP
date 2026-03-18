@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1034493409270",
+    "project_id": "dog-trackin",
+    "storage_bucket": "dog-trackin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1034493409270:android:3bf8d00e93da19111439d7",
+        "android_client_info": {
+          "package_name": "com.softwareofnote.dogtrackin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1034493409270-73gpgmd2t8u88bipdqhc9q49e42qginp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYrYZFzjzd5xQNDd4BOB3yuHNMIL2OyI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1034493409270-73gpgmd2t8u88bipdqhc9q49e42qginp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1034493409270-jmtk9vo319ft713jv4666ens9b1vqctv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.softwareofnote.dogtrackin"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
