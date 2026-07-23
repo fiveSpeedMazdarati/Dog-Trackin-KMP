@@ -14,7 +14,7 @@ kotlin {
     androidTarget {
         @Suppress("DEPRECATION")
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     
@@ -32,7 +32,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.10.0"))
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.16.0"))
             implementation("com.google.firebase:firebase-auth")
             implementation("com.google.firebase:firebase-firestore")
             implementation("com.google.firebase:firebase-crashlytics")
@@ -48,13 +48,13 @@ kotlin {
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation("dev.gitlive:firebase-auth:2.1.0")
-            implementation("dev.gitlive:firebase-firestore:2.1.0")
-            implementation("dev.gitlive:firebase-crashlytics:2.1.0")
+            implementation("dev.gitlive:firebase-auth:2.5.0")
+            implementation("dev.gitlive:firebase-firestore:2.5.0")
+            implementation("dev.gitlive:firebase-crashlytics:2.5.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
         }
     }
 }
@@ -81,8 +81,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
