@@ -1,5 +1,6 @@
 package com.softwareofnote.dogtrackin
 
+import com.softwareofnote.dogtrackin.auth.domain.AuthError
 import com.softwareofnote.dogtrackin.auth.domain.AuthRepository
 import com.softwareofnote.dogtrackin.auth.domain.AuthResult
 import com.softwareofnote.dogtrackin.auth.domain.User
@@ -21,7 +22,7 @@ class FakeAuthRepository : AuthRepository {
             currentUserFlow.value = user
             return AuthResult.Success(user)
         }
-        return AuthResult.Error("Invalid credentials")
+        return AuthResult.Error(AuthError.InvalidCredentials)
     }
 
     override suspend fun signUp(email: String, password: String): AuthResult {
@@ -31,11 +32,11 @@ class FakeAuthRepository : AuthRepository {
     }
 
     override suspend fun loginWithGoogle(): AuthResult {
-        return AuthResult.Error("Not implemented")
+        return AuthResult.Error(AuthError.Unknown("Not implemented"))
     }
 
     override suspend fun loginWithApple(): AuthResult {
-        return AuthResult.Error("Not implemented")
+        return AuthResult.Error(AuthError.Unknown("Not implemented"))
     }
 
     override fun getCurrentUser(): Flow<User?> = currentUserFlow

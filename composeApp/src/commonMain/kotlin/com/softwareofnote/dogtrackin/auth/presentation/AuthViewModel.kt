@@ -2,6 +2,7 @@ package com.softwareofnote.dogtrackin.auth.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softwareofnote.dogtrackin.auth.domain.AuthError
 import com.softwareofnote.dogtrackin.auth.domain.AuthRepository
 import com.softwareofnote.dogtrackin.auth.domain.AuthResult
 import com.softwareofnote.dogtrackin.auth.domain.User
@@ -31,7 +32,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             _uiState.value = AuthUiState.Loading
             when (val result = repository.login(email, password)) {
                 is AuthResult.Success -> _uiState.value = AuthUiState.Success
-                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.message)
+                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.error)
             }
         }
     }
@@ -41,7 +42,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             _uiState.value = AuthUiState.Loading
             when (val result = repository.signUp(email, password)) {
                 is AuthResult.Success -> _uiState.value = AuthUiState.Success
-                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.message)
+                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.error)
             }
         }
     }
@@ -51,7 +52,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             _uiState.value = AuthUiState.Loading
             when (val result = repository.loginWithGoogle()) {
                 is AuthResult.Success -> _uiState.value = AuthUiState.Success
-                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.message)
+                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.error)
             }
         }
     }
@@ -61,7 +62,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             _uiState.value = AuthUiState.Loading
             when (val result = repository.loginWithApple()) {
                 is AuthResult.Success -> _uiState.value = AuthUiState.Success
-                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.message)
+                is AuthResult.Error -> _uiState.value = AuthUiState.Error(result.error)
             }
         }
     }
@@ -81,5 +82,14 @@ sealed class AuthUiState {
     object Idle : AuthUiState()
     object Loading : AuthUiState()
     object Success : AuthUiState()
-    data class Error(val message: String) : AuthUiState()
+    data class Error(val error: AuthError) : AuthUiState()
+}
+
+/** Maps a typed [AuthError] to a user-facing message for display. */
+fun AuthError.toUserMessage(): String = when (this) {
+    AuthError.Network -> "Network error. Check your connection and try again."
+    AuthError.InvalidCredentials -> "Incorrect email or password."
+    AuthError.EmailAlreadyInUse -> "That email is already registered."
+    AuthError.UserNotFound -> "No account found for that email."
+    is AuthError.Unknown -> message ?: "Something went wrong. Please try again."
 }
