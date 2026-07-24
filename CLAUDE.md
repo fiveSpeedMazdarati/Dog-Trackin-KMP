@@ -8,7 +8,7 @@ DogTrackin is a Kotlin Multiplatform (KMP) app targeting **Android** and **iOS**
 
 ## Common Commands
 
-Requires **JDK 11** (the toolchain configured in `composeApp/build.gradle.kts`). Use `./gradlew` on macOS/Linux, `.\gradlew.bat` on Windows.
+Requires **JDK 17** (the toolchain configured in `composeApp/build.gradle.kts`; AGP 9 / Gradle 9 require JDK 17+). Use `./gradlew` on macOS/Linux, `.\gradlew.bat` on Windows.
 
 - **Build Android debug APK**: `./gradlew :composeApp:assembleDebug`
 - **Run all common tests on every target**: `./gradlew :composeApp:allTests`
