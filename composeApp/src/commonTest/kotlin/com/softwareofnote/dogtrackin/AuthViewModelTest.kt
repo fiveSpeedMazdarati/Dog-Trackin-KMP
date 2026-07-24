@@ -55,14 +55,22 @@ class AuthViewModelTest {
 
     @BeforeTest
     fun setup() {
-        // Since we are in commonTest, we can use standard Coroutine testing
-        // Note: In some KMP setups, we'd need to set the Main dispatcher.
+        // viewModelScope dispatches on Dispatchers.Main, so install the test
+        // dispatcher as Main *before* constructing the ViewModel (its init block
+        // launches the currentUser collector). Tests run on the same dispatcher
+        // so advanceUntilIdle() deterministically drives those coroutines.
+        Dispatchers.setMain(testDispatcher)
         repository = FakeAuthRepository()
         viewModel = AuthViewModel(repository)
     }
 
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun testLoginSuccess() = runTest {
+    fun testLoginSuccess() = runTest(testDispatcher) {
         viewModel.login("test@test.com", "password")
         advanceUntilIdle()
         val user = viewModel.currentUser.value
@@ -71,7 +79,7 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun testLoginFailure() = runTest {
+    fun testLoginFailure() = runTest(testDispatcher) {
         viewModel.login("wrong@test.com", "password")
         advanceUntilIdle()
         val user = viewModel.currentUser.value
@@ -79,7 +87,7 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun testSignOut() = runTest {
+    fun testSignOut() = runTest(testDispatcher) {
         viewModel.login("test@test.com", "password")
         advanceUntilIdle()
         assertNotNull(viewModel.currentUser.value)
