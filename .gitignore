@@ -18,4 +18,8 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 
+# Firebase config (never commit real values; CI generates a placeholder)
+**/google-services.json
+**/GoogleService-Info.plist
+
 
