@@ -1,23 +1,19 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidKmpLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
 }
 
 kotlin {
-    androidTarget {
-        @Suppress("DEPRECATION")
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
+    jvmToolchain(17)
+
+    android {
+        namespace = "com.softwareofnote.dogtrackin"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,16 +23,16 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.16.0"))
-            implementation("com.google.firebase:firebase-auth")
-            implementation("com.google.firebase:firebase-firestore")
-            implementation("com.google.firebase:firebase-crashlytics")
-            implementation("com.google.firebase:firebase-analytics")
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.auth.android)
+            implementation(libs.firebase.firestore.android)
+            implementation(libs.firebase.crashlytics.android)
+            implementation(libs.firebase.analytics.android)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -48,9 +44,9 @@ kotlin {
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation("dev.gitlive:firebase-auth:2.5.0")
-            implementation("dev.gitlive:firebase-firestore:2.5.0")
-            implementation("dev.gitlive:firebase-crashlytics:2.5.0")
+            implementation(libs.firebase.kotlin.auth)
+            implementation(libs.firebase.kotlin.firestore)
+            implementation(libs.firebase.kotlin.crashlytics)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -58,35 +54,3 @@ kotlin {
         }
     }
 }
-
-android {
-    namespace = "com.softwareofnote.dogtrackin"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    defaultConfig {
-        applicationId = "com.softwareofnote.dogtrackin"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
-dependencies {
-    debugImplementation(libs.compose.uiTooling)
-}
-

@@ -6,11 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DogTrackin is a Kotlin Multiplatform (KMP) app targeting **Android** and **iOS**, with a shared Compose Multiplatform UI. All UI and business logic live in the shared `commonMain` source set; platform folders exist only for entry points and `expect`/`actual` implementations.
 
+## Module Structure
+
+The project is split into two Gradle modules:
+
+- **`:composeApp`** — KMP library (`com.android.kotlin.multiplatform.library` + `kotlinMultiplatform`). Contains all shared code: `commonMain`, `androidMain` (platform actuals + Android-specific deps), `iosMain`, and `commonTest`. Produces the iOS static framework (`ComposeApp`).
+- **`:androidApp`** — Thin Android application (`com.android.application`). Contains only `MainActivity`, the `AndroidManifest.xml`, Android resources, and the Firebase `google-services`/`crashlytics` Gradle plugins. Depends on `:composeApp`.
+
+This split is required by AGP 9.0+, which no longer allows `com.android.application` and `kotlinMultiplatform` in the same module.
+
 ## Common Commands
 
 Requires **JDK 17** (the toolchain configured in `composeApp/build.gradle.kts`; AGP 9 / Gradle 9 require JDK 17+). Use `./gradlew` on macOS/Linux, `.\gradlew.bat` on Windows.
 
-- **Build Android debug APK**: `./gradlew :composeApp:assembleDebug`
+- **Build Android debug APK**: `./gradlew :androidApp:assembleDebug`
 - **Run all common tests on every target**: `./gradlew :composeApp:allTests`
 - **Run JVM/Android unit tests**: `./gradlew :composeApp:testDebugUnitTest`
 - **Run a single test class**: `./gradlew :composeApp:testDebugUnitTest --tests "com.softwareofnote.dogtrackin.AuthViewModelTest"`
@@ -28,14 +37,15 @@ New features should mirror this `domain` / `data` / `presentation` package split
 
 **App composition**: `App.kt` is the shared Compose root. It constructs `FirebaseAuthRepository`, wraps it in an `AuthViewModel`, and switches between `LoginScreen` and the authed content based on `currentUser`. Dependencies are wired manually here (`remember { FirebaseAuthRepository() }`) — there is no DI framework.
 
-**Platform entry points**: Android `MainActivity` and iOS `MainViewController()` both simply call the shared `App()`. Platform-specific behavior uses the `expect`/`actual` pattern — see `Platform.kt` (expect) with `Platform.android.kt` / `Platform.ios.kt` (actual).
+**Platform entry points**: Android `MainActivity` (in `:androidApp`) and iOS `MainViewController()` (in `composeApp/src/iosMain/`) both simply call the shared `App()`. Platform-specific behavior uses the `expect`/`actual` pattern — see `Platform.kt` (expect) with `Platform.android.kt` / `Platform.ios.kt` (actual).
 
 ## Firebase
 
 Firebase (Auth, Firestore, Crashlytics, Analytics) is the backend. Note the **dual dependency setup** in `composeApp/build.gradle.kts`:
 
 - `commonMain` uses the **`dev.gitlive:firebase-*`** KMP wrappers — this is the API the shared code calls (e.g. `Firebase.auth`).
-- `androidMain` additionally pulls the **native Google `firebase-bom`** SDKs, and the root/app Gradle files apply the `google-services` and `firebase-crashlytics` plugins.
+- `composeApp`'s `androidMain` additionally pulls the **native Google `firebase-bom`** SDKs.
+- `:androidApp` applies the `google-services` and `firebase-crashlytics` Gradle plugins (which process `google-services.json`).
 
 Firebase config files (`google-services.json`, `GoogleService-Info.plist`) are not committed. `loginWithGoogle()` and `loginWithApple()` are currently stubbed and return an error.
 
