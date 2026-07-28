@@ -40,7 +40,7 @@ jobs:
       # It is never committed and Firebase is not exercised in CI.
       - name: Write placeholder google-services.json
         run: |
-          cat > composeApp/google-services.json <<'JSON'
+          cat > androidApp/google-services.json <<'JSON'
           {
             "project_info": {
               "project_number": "000000000000",
@@ -71,10 +71,10 @@ jobs:
           JSON
 
       - name: Run unit tests
-        run: ./gradlew :composeApp:testDebugUnitTest
+        run: ./gradlew :composeApp:testAndroidHostTest
 
       - name: Assemble debug APK
-        run: ./gradlew :composeApp:assembleDebug
+        run: ./gradlew :androidApp:assembleDebug
 
       - name: Upload test reports
         if: always()

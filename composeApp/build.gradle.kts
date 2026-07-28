@@ -9,9 +9,11 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "com.softwareofnote.dogtrackin"
+        namespace = "com.softwareofnote.dogtrackin.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withHostTest {}
     }
 
     listOf(

@@ -21,8 +21,8 @@ Requires **JDK 17** (the toolchain configured in `composeApp/build.gradle.kts`; 
 
 - **Build Android debug APK**: `./gradlew :androidApp:assembleDebug`
 - **Run all common tests on every target**: `./gradlew :composeApp:allTests`
-- **Run JVM/Android unit tests**: `./gradlew :composeApp:testDebugUnitTest`
-- **Run a single test class**: `./gradlew :composeApp:testDebugUnitTest --tests "com.softwareofnote.dogtrackin.AuthViewModelTest"`
+- **Run JVM/Android unit tests**: `./gradlew :composeApp:testAndroidHostTest`
+- **Run a single test class**: `./gradlew :composeApp:testAndroidHostTest --tests "com.softwareofnote.dogtrackin.AuthViewModelTest"`
 - **iOS**: the iOS framework (`ComposeApp`, static) is produced by the Gradle build; build/run the `iosApp` Xcode project in `iosApp/` (or via the IDE's iosApp run configuration), which triggers the Gradle framework build automatically.
 
 ## Architecture
