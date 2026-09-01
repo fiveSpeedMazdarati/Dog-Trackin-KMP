@@ -83,3 +83,68 @@ jobs:
           name: test-reports
           path: composeApp/build/reports/tests/
           if-no-files-found: ignore
+
+  ios:
+    name: Build iOS framework
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Configuring the Gradle build evaluates :androidApp too, which needs the
+      # Android SDK even though this job only builds the iOS framework.
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 36 platform
+        run: yes | sdkmanager "platforms;android-36"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Same reason as the Android job: :androidApp applies the google-services
+      # plugin, so a placeholder google-services.json must exist at config time.
+      - name: Write placeholder google-services.json
+        run: |
+          cat > androidApp/google-services.json <<'JSON'
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "dogtrackin-ci-placeholder",
+              "storage_bucket": "dogtrackin-ci-placeholder.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                  "android_client_info": {
+                    "package_name": "com.softwareofnote.dogtrackin"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  { "current_key": "AIzaSyDUMMYCIPLACEHOLDERKEYDUMMYCIPLACE0" }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          JSON
+
+      # Compiles all commonMain + iosMain Kotlin and links the static framework.
+      # The static framework leaves Firebase Obj-C symbols unresolved until the
+      # Xcode app link, so this does not require the Firebase iOS SDK or a
+      # GoogleService-Info.plist — it validates that the shared code builds for iOS.
+      - name: Build iOS framework (simulator arm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
