@@ -1,0 +1,53 @@
+workflows:
+  android:
+    name: Android build & test
+    instance_type: linux_x2          # cheaper than mac for the Android side
+    max_build_duration: 60
+    environment:
+      java: 17
+    triggering:
+      events: [push, pull_request]
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - name: Placeholder google-services.json
+        script: |
+          cat > androidApp/google-services.json <<'JSON'
+          {"project_info":{"project_number":"000000000000","project_id":"dogtrackin-ci-placeholder","storage_bucket":"dogtrackin-ci-placeholder.appspot.com"},
+           "client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000000000","android_client_info":{"package_name":"com.softwareofnote.dogtrackin"}},
+           "oauth_client":[],"api_key":[{"current_key":"AIzaSyDUMMYCIPLACEHOLDERKEYDUMMYCIPLACE0"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],
+           "configuration_version":"1"}
+          JSON
+      - name: Unit tests
+        script: ./gradlew :composeApp:testAndroidHostTest
+      - name: Assemble debug APK
+        script: ./gradlew :androidApp:assembleDebug
+    artifacts:
+      - androidApp/build/outputs/**/*.apk
+
+  ios:
+    name: iOS framework & shared tests
+    instance_type: mac_mini_m2       # Apple toolchain requires macOS
+    max_build_duration: 60
+    environment:
+      java: 17
+      xcode: latest
+    triggering:
+      events: [push, pull_request]
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - name: Placeholder google-services.json   # :androidApp is still configured during the build
+        script: |
+          cat > androidApp/google-services.json <<'JSON'
+          {"project_info":{"project_number":"000000000000","project_id":"dogtrackin-ci-placeholder","storage_bucket":"dogtrackin-ci-placeholder.appspot.com"},
+           "client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000000000","android_client_info":{"package_name":"com.softwareofnote.dogtrackin"}},
+           "oauth_client":[],"api_key":[{"current_key":"AIzaSyDUMMYCIPLACEHOLDERKEYDUMMYCIPLACE0"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],
+           "configuration_version":"1"}
+          JSON
+      - name: Build shared iOS framework
+        script: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+      - name: Run shared tests on iOS simulator
+        script: ./gradlew :composeApp:iosSimulatorArm64Test
