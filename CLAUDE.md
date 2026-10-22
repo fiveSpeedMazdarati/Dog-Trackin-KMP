@@ -47,7 +47,7 @@ Firebase (Auth, Firestore, Crashlytics, Analytics) is the backend. Note the **du
 - `composeApp`'s `androidMain` additionally pulls the **native Google `firebase-bom`** SDKs.
 - `:androidApp` applies the `google-services` and `firebase-crashlytics` Gradle plugins (which process `google-services.json`).
 
-Firebase config files (`google-services.json`, `GoogleService-Info.plist`) are not committed. `loginWithGoogle()` and `loginWithApple()` are currently stubbed and return an error.
+Firebase config files (`google-services.json`, `GoogleService-Info.plist`) are not committed. `loginWithGoogle()` and `loginWithApple()` are currently stubbed and return an error. Wiring Firebase into the iOS app (SPM package + `GoogleService-Info.plist`) is documented in [docs/ios-firebase-setup.md](docs/ios-firebase-setup.md).
 
 ## Conventions
 
