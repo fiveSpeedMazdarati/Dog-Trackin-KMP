@@ -35,6 +35,10 @@ The codebase follows a **Clean Architecture** layering within feature packages u
 
 New features should mirror this `domain` / `data` / `presentation` package split.
 
+**Design system**: tokens are defined in `docs/design-system/tokens.json` (source of truth) and documented in `docs/design-system/design-system.md`. The Compose implementation lives in the `designsystem/` package (`DogTrackinTheme`, `Palette`, `DogTrackinType`, `Spacing`/`Radius`, `Glyph`). Use `DogTrackinTheme.colors` / `DogTrackinType` rather than hardcoded colours or sizes. Light purple and light blue are surfaces only — text on them is always black; `DesignTokensContrastTest` enforces WCAG AA pairs.
+
+**Product docs**: `docs/product-spec.md`, `docs/implementation-plan.md` (architecture decisions, phases) and `docs/open-questions.md`.
+
 **App composition**: `App.kt` is the shared Compose root. It constructs `FirebaseAuthRepository`, wraps it in an `AuthViewModel`, and switches between `LoginScreen` and the authed content based on `currentUser`. Dependencies are wired manually here (`remember { FirebaseAuthRepository() }`) — there is no DI framework.
 
 **Platform entry points**: Android `MainActivity` (in `:androidApp`) and iOS `MainViewController()` (in `composeApp/src/iosMain/`) both simply call the shared `App()`. Platform-specific behavior uses the `expect`/`actual` pattern — see `Platform.kt` (expect) with `Platform.android.kt` / `Platform.ios.kt` (actual).
