@@ -2,11 +2,12 @@
 
 Answers to these shape the spec, the plan and the estimates. Questions are grouped and roughly ordered by impact, with the most important first.
 
-## A. Platform and technology (blocking)
-1. **Is Android still a goal?** The repo is a Kotlin Multiplatform project with an Android app, but the request says "native iOS app". This decides ADR-1 (options A, B or C in the implementation plan).
-2. **Is moving the iOS UI from Compose Multiplatform to SwiftUI acceptable?** It's needed for a "native, modern iOS" feel, and tvOS can't use Compose (to my knowledge).
-3. **Minimum iOS version?** Proposal: iOS 17, for `@Observable` and modern SwiftUI navigation. Each version you go back costs more work.
-4. **Firebase Blaze plan:** server-side push fan-out needs Cloud Functions, which require pay-as-you-go billing. OK?
+## A. Platform and technology
+- ~~Is Android still a goal?~~ **Answered: no. iOS-family only, pure Swift/SwiftUI, no shared code.**
+1. **Minimum iOS version?** Proposal: iOS/iPadOS/tvOS 17, for `@Observable`, interactive widgets and the newer SwiftUI `Map`.
+2. **Removing the existing Kotlin/Android project:** OK to delete `composeApp/`, `androidApp/`, Gradle and their CI jobs in P0? Should the repo be renamed (it's currently `Dog-Trackin-KMP`)?
+3. **How should the Xcode project be created:** by hand in Xcode, or generated from a text spec (XcodeGen or Tuist), which avoids merge conflicts in `project.pbxproj`?
+4. **Firebase Blaze plan:** server-side push fan-out needs Cloud Functions, which require pay-as-you-go billing. OK? Or would you rather avoid Firebase entirely (e.g. CloudKit; see section K)?
 5. **Apple Developer Program:** do you have a paid account? It's needed for push (APNs key), Sign in with Apple, TestFlight and the App Store.
 
 ## B. People and permissions
@@ -46,7 +47,7 @@ Answers to these shape the spec, the plan and the estimates. Questions are group
 29. **Forced update:** should a banner be able to block the app until the user updates (useful after a breaking backend change)?
 
 ## H. TV
-30. **Apple TV only, or also Google TV / Android TV?**
+30. **Which Apple TV models and tvOS version** do you have to test on?
 31. **Is pairing the TV with a code from your phone OK** (a read-only, revocable TV login), or should the TV show everything the signed-in account can see?
 32. **Would home-screen widgets, Lock Screen widgets or an Apple Watch app cover the "glance" need** more cheaply than a TV app? They could come first.
 
@@ -56,6 +57,15 @@ Answers to these shape the spec, the plan and the estimates. Questions are group
 35. **No red at all,** including for delete or error? The design uses an inverted black/white treatment for danger.
 36. **Poop glyph:** as far as I know SF Symbols has no dedicated one. Options: a stand-in symbol (currently `leaf.fill`), a text label, or a custom SF Symbol (a vector glyph you design, which still counts as a glyph).
 37. **SF Pro Rounded** for the big "time since" numbers? Rounded fits a pet app. It's still a system font.
+
+## K. Backend alternative (new, now that this is Apple-only)
+45. **CloudKit instead of Firebase?** With no Android, Apple's CloudKit is an option. It has built-in sharing (`CKShare`) between Apple IDs, offline sync through `NSPersistentCloudKitContainer` / SwiftData, and no Google dependency or server bill for most usage. Trade-offs:
+    - Every caretaker needs an iCloud account.
+    - There's no email/password or Google login. CloudKit uses the device's Apple ID, which conflicts with your login requirements.
+    - Server-side logic, such as fan-out filtering, quiet hours or announcements targeting one user, is much harder.
+    - Temporary access with automatic expiry isn't built in.
+
+    My recommendation is to **stay on Firebase** because of the login requirements, but it's your call.
 
 ## J. Business, legal, operations
 38. **Free, paid or subscription?** This affects StoreKit work, whether the TV app is gated, and Firebase cost planning.

@@ -16,7 +16,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.softwareofnote.dogtrackin.auth.data.FirebaseAuthRepository
 import com.softwareofnote.dogtrackin.auth.presentation.AuthViewModel
 import com.softwareofnote.dogtrackin.auth.presentation.LoginScreen
-import com.softwareofnote.dogtrackin.designsystem.DogTrackinTheme
 import org.jetbrains.compose.resources.painterResource
 
 import dogtrackin.composeapp.generated.resources.Res
@@ -25,7 +24,7 @@ import dogtrackin.composeapp.generated.resources.compose_multiplatform
 @Composable
 @Preview
 fun App() {
-    DogTrackinTheme {
+    MaterialTheme {
         val authRepository = remember { FirebaseAuthRepository() }
         val authViewModel: AuthViewModel = viewModel { AuthViewModel(authRepository) }
         val currentUser by authViewModel.currentUser.collectAsState()

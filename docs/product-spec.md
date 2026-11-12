@@ -1,6 +1,6 @@
 # Dog Trackin' — Product Specification
 
-> **Status:** Draft v0.1 — written for review. Every item marked **⚠ OPEN** depends on an answer in
+> **Status:** Draft v0.2 — written for review. Every item marked **⚠ OPEN** depends on an answer in
 > [open-questions.md](open-questions.md). Nothing here is final.
 
 **Dog Trackin'** (a pun on *tracking* what the dog does and on *dog-tracking*, the gait where a dog's
@@ -28,7 +28,7 @@ The app replaces the shouting across the house and the group texts with one log 
 | Many people ↔ many animals | GPS walk-route tracking (live) |
 | Works offline, syncs later | Automatic sensors / smart feeders |
 | Temporary caretakers with limited access | Payments for dog walkers |
-| iPhone + iPad, then a read-only TV dashboard | Watch app (good candidate for v2) |
+| iPhone + iPad, then a read-only TV dashboard | Android, web, Watch app (Watch is a good v2 candidate) |
 
 ## 3. Glossary
 
@@ -214,7 +214,7 @@ stateDiagram-v2
 
 | Area | Requirement |
 |---|---|
-| Platforms | iOS / iPadOS (minimum version ⚠ OPEN, proposal iOS 17), tvOS (phase 3). Android is already scaffolded in this repo (⚠ OPEN: still a goal?) |
+| Platforms | **Apple only**: iPhone, iPad, Apple TV. Native Swift/SwiftUI, with no cross-platform code. Minimum OS ⚠ OPEN (proposal iOS/iPadOS/tvOS 17). Android is out of scope. |
 | Performance | Quick log feels instant (written locally first). Push delivered within about 5 s of sync in normal conditions. Apple and Google do not guarantee push delivery or timing. |
 | Accessibility | Dynamic Type up to AX5, VoiceOver labels on every glyph, WCAG AA contrast (checked in tests), no information conveyed by colour alone |
 | Localization | English v1; all strings externalized; dates and times use the device locale |

@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> **Direction change (planned):** Dog Trackin' is becoming an **iOS-family-only, pure Swift/SwiftUI app** (iPhone, iPad, Apple TV). The Kotlin Multiplatform / Android code described below is scheduled for removal in phase P0 — see `docs/implementation-plan.md`. Do not add new Kotlin or Android features. New work goes in Swift: the design system lives in the `Packages/DesignSystem` Swift package (tokens in `docs/design-system/`). Product docs: `docs/product-spec.md`, `docs/implementation-plan.md`, `docs/open-questions.md`.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -34,10 +36,6 @@ The codebase follows a **Clean Architecture** layering within feature packages u
 - **`presentation/`** — `AuthViewModel` (extends `androidx.lifecycle.ViewModel`, shared via KMP lifecycle libraries) plus Compose screens. UI state is exposed as a `StateFlow<AuthUiState>` (an `Idle`/`Loading`/`Success`/`Error` sealed class) and `StateFlow<User?>`.
 
 New features should mirror this `domain` / `data` / `presentation` package split.
-
-**Design system**: tokens are defined in `docs/design-system/tokens.json` (source of truth) and documented in `docs/design-system/design-system.md`. The Compose implementation lives in the `designsystem/` package (`DogTrackinTheme`, `Palette`, `DogTrackinType`, `Spacing`/`Radius`, `Glyph`). Use `DogTrackinTheme.colors` / `DogTrackinType` rather than hardcoded colours or sizes. Light purple and light blue are surfaces only — text on them is always black; `DesignTokensContrastTest` enforces WCAG AA pairs.
-
-**Product docs**: `docs/product-spec.md`, `docs/implementation-plan.md` (architecture decisions, phases) and `docs/open-questions.md`.
 
 **App composition**: `App.kt` is the shared Compose root. It constructs `FirebaseAuthRepository`, wraps it in an `AuthViewModel`, and switches between `LoginScreen` and the authed content based on `currentUser`. Dependencies are wired manually here (`remember { FirebaseAuthRepository() }`) — there is no DI framework.
 

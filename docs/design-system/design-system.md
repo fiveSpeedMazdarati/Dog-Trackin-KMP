@@ -1,15 +1,14 @@
 # Dog Trackin' Design System
 
-> **Status:** v0.1. The tokens live in [`tokens.json`](tokens.json), which is the source of truth for every platform.
-> The Compose implementation is in
-> `composeApp/src/commonMain/kotlin/com/softwareofnote/dogtrackin/designsystem/`. A SwiftUI implementation
-> will follow once the UI-stack decision is made (see the implementation plan, ADR-1).
+> **Status:** v0.2. The tokens are listed in [`tokens.json`](tokens.json) and implemented in SwiftUI in the
+> **`Packages/DesignSystem`** Swift package (`DTColor`, `DTFont`, `DTSpacing`, `DTRadius`, `Glyph`, `BannerView`,
+> `SinceTile` and button styles). Targets: iPhone, iPad and Apple TV.
 
 ## Principles
 
 1. **Glanceable first.** The most important fact on any screen is "how long since…". Large numbers, short labels.
 2. **Four colours, and colour is never the only cue.** Black, white, light purple, light blue. Every state also has a glyph and a word.
-3. **System everything.** System fonts, system glyphs (SF Symbols on Apple platforms), system controls, Dynamic Type.
+3. **System everything.** System fonts, SF Symbols, system controls, Dynamic Type.
 4. **Glyphs, not graphics.** No illustrations or bitmaps. A dog is a `pawprint`, not a picture.
 5. **Calm by default.** No red alarm colours. Urgency comes from the inverted black banner and the wording, not from saturation.
 
@@ -59,7 +58,7 @@ fails WCAG. Text and glyphs on purple or blue surfaces are always `ink`, at 14:1
 
 ### 1.4 Measured contrast (WCAG 2.x)
 
-These are computed in a unit test (`DesignTokensContrastTest`), so a palette change that breaks them fails the build.
+These are computed in a unit test (`ContrastTests` in the DesignSystem package), so a palette change that breaks them fails the build.
 
 | Pair | Ratio | AA normal text (4.5) |
 |---|---|---|
@@ -86,8 +85,8 @@ These are computed in a unit test (`DesignTokensContrastTest`), so a palette cha
 
 ## 2. Typography
 
-**System fonts only.** On Apple platforms that means SF Pro / SF Pro Rounded (⚠ OPEN: rounded for numerals?) through the
-built-in **text styles**, so Dynamic Type works automatically. On Android, Roboto via the default family.
+**System fonts only.** SF Pro (and SF Pro Rounded for the big numbers, ⚠ OPEN) through the built-in **text styles**,
+so Dynamic Type works automatically. In code: `DTFont.*`, which wraps `Font.system(<textStyle>, weight:)`.
 
 | Token | Apple text style | Default size / line height (pt) | Weight | Used for |
 |---|---|---|---|---|
@@ -106,39 +105,40 @@ Numbers that change, such as "2 h 14 m ago", use **monospaced digits** (`.monosp
 
 ## 3. Glyphs
 
-A glyph always has an accessibility label. On Apple platforms these are SF Symbols; on Android, Material Symbols.
-**⚠ Every symbol name below needs to be checked in Apple's SF Symbols app against the minimum OS version we pick.**
-The names are proposals; availability by OS version can't be confirmed from this environment.
+Every glyph is an SF Symbol and always has an accessibility label (`Glyph.image` attaches it).
+**⚠ Every symbol name below needs to be checked in Apple's SF Symbols app against iOS/tvOS 17.**
+The names are proposals; availability by OS version can't be confirmed from this environment. Rows marked ⚠ are
+known-uncertain stand-ins (`Glyph.needsReview == true` in code).
 
-| Concept | SF Symbol (proposed) | Material Symbol (proposed) | Notes |
-|---|---|---|---|
-| App / animal | `pawprint.fill` | `pets` | |
-| Pee | `drop.fill` | `water_drop` | |
-| Poop | `leaf.fill` ⚠ | `compost` ⚠ | As far as I know SF Symbols has no dedicated poop glyph. This is a stand-in; decision needed. |
-| Meal | `fork.knife` | `restaurant` | |
-| Water | `cup.and.saucer.fill` ⚠ | `local_drink` | Could clash visually with "pee". Review needed. |
-| Medication | `pills.fill` | `medication` | |
-| Walk | `figure.walk` | `directions_walk` | |
-| Outside (yard) | `door.left.hand.open` ⚠ | `door_open` | |
-| Treat | `gift.fill` ⚠ | `cookie` | |
-| Grooming | `scissors` | `content_cut` | |
-| Vet | `cross.case.fill` | `medical_services` | |
-| Note | `note.text` | `sticky_note_2` | |
-| Named place | `mappin.and.ellipse` | `location_on` | |
-| Dropped pin | `mappin` | `pin_drop` | |
-| Home place | `house.fill` | `home` | |
-| Caretaker(s) | `person.2.fill` | `group` | |
-| Temporary access | `clock.badge` ⚠ | `schedule` | |
-| Inbox / notifications | `bell.fill` | `notifications` | |
-| Archive | `archivebox.fill` | `archive` | |
-| Delete | `trash` | `delete` | |
-| Offline | `wifi.slash` | `wifi_off` | |
-| Sync pending | `arrow.triangle.2.circlepath` | `sync` | |
+| Concept | SF Symbol (proposed) | Notes |
+|---|---|---|
+| App / animal | `pawprint.fill` | |
+| Pee | `drop.fill` | |
+| Poop | `leaf.fill` ⚠ | As far as I know SF Symbols has no dedicated poop glyph. This is a stand-in; options include a custom SF Symbol. |
+| Meal | `fork.knife` | |
+| Water | `cup.and.saucer.fill` ⚠ | Could clash visually with "pee". Review needed. |
+| Medication | `pills.fill` | |
+| Walk | `figure.walk` | |
+| Outside (yard) | `door.left.hand.open` ⚠ | |
+| Treat | `gift.fill` ⚠ | |
+| Grooming | `scissors` | |
+| Vet | `cross.case.fill` | |
+| Note | `note.text` | |
+| Named place | `mappin.and.ellipse` | |
+| Dropped pin | `mappin` | |
+| Home place | `house.fill` | |
+| Caretaker(s) | `person.2.fill` | |
+| Temporary access | `clock.badge` ⚠ | |
+| Inbox / notifications | `bell.fill` | |
+| Archive | `archivebox.fill` | |
+| Delete | `trash` | |
+| Offline | `wifi.slash` | |
+| Sync pending | `arrow.triangle.2.circlepath` | |
 
 ## 4. Spacing, shape and elevation
 
 - **Spacing scale (4-pt grid):** `xxs 2 · xs 4 · s 8 · m 12 · l 16 · xl 24 · xxl 32 · xxxl 48`.
-- **Screen margins:** 16 (iPhone), 20 (iPad regular width), 80 to 90 on the sides for tvOS safe area. ⚠ Confirm against Apple's HIG for tvOS.
+- **Screen margins:** 16 (iPhone), 20 (iPad regular width). On tvOS, use the system safe area rather than hard-coded margins.
 - **Corner radius:** `small 8` (chips, badges), `medium 12` (buttons, fields), `large 20` (cards, sheets). Use **continuous** corners on iOS.
 - **Elevation:** none. Hierarchy comes from a hairline border in light mode or a `gray900` surface in dark mode, not from shadows.
 - **Minimum touch target:** 44 × 44 pt.
