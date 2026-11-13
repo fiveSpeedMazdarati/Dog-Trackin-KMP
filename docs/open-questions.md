@@ -9,12 +9,12 @@ Answered:
 - ~~Delete the KMP project?~~ **Yes. Done.**
 - ~~How to create the Xcode project?~~ **XcodeGen.**
 - ~~Firebase or CloudKit?~~ **Firebase.**
+- ~~Paid Apple Developer account?~~ **Yes.** Push, Sign in with Apple, TestFlight and the App Store are all unblocked.
 
 Still open:
 1. **Rename the GitHub repo?** It's still `Dog-Trackin-KMP`.
 2. **Firebase Blaze plan:** server-side push fan-out needs Cloud Functions, which require pay-as-you-go billing. OK?
-3. **Apple Developer Program:** do you have a paid account? It's needed for push (APNs key), Sign in with Apple, TestFlight and the App Store.
-4. **Firebase bundle ID:** is the Firebase iOS app registered as `com.softwareofnote.dogtrackin`? The old KMP shell used `com.softwareofnote.dogtrackin.DogTrackin<TEAM_ID>`.
+3. **Firebase bundle ID:** is the Firebase iOS app registered as `com.softwareofnote.dogtrackin`? The old KMP shell used `com.softwareofnote.dogtrackin.DogTrackin<TEAM_ID>`.
 
 ## B. People and permissions
 6. **Can an animal have several owners?** If the only owner deletes their account, what happens to the dog and to everyone else's access?
