@@ -6,6 +6,10 @@ on:
   push:
     branches: [ main ]
 
+# Least privilege: CI only reads the repo.
+permissions:
+  contents: read
+
 # Cancel superseded runs on the same ref (e.g. new pushes to a PR).
 concurrency:
   group: ci-${{ github.ref }}
