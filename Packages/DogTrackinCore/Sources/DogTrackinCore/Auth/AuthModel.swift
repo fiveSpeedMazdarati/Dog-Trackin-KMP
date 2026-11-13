@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 
 /// Observable state for sign-in screens. Successor to the old Kotlin `AuthViewModel`.
