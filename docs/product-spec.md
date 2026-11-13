@@ -214,7 +214,7 @@ stateDiagram-v2
 
 | Area | Requirement |
 |---|---|
-| Platforms | **Apple only**: iPhone, iPad, Apple TV. Native Swift/SwiftUI, with no cross-platform code. Minimum OS ⚠ OPEN (proposal iOS/iPadOS/tvOS 17). Android is out of scope. |
+| Platforms | **Apple only**: iPhone, iPad, Apple TV. Native Swift/SwiftUI, with no cross-platform code. Minimum OS **iOS/iPadOS/tvOS 18**. Android is out of scope. |
 | Performance | Quick log feels instant (written locally first). Push delivered within about 5 s of sync in normal conditions. Apple and Google do not guarantee push delivery or timing. |
 | Accessibility | Dynamic Type up to AX5, VoiceOver labels on every glyph, WCAG AA contrast (checked in tests), no information conveyed by colour alone |
 | Localization | English v1; all strings externalized; dates and times use the device locale |

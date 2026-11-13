@@ -1,58 +1,65 @@
 # CLAUDE.md
 
-> **Direction change (planned):** Dog Trackin' is becoming an **iOS-family-only, pure Swift/SwiftUI app** (iPhone, iPad, Apple TV). The Kotlin Multiplatform / Android code described below is scheduled for removal in phase P0 — see `docs/implementation-plan.md`. Do not add new Kotlin or Android features. New work goes in Swift: the design system lives in the `Packages/DesignSystem` Swift package (tokens in `docs/design-system/`). Product docs: `docs/product-spec.md`, `docs/implementation-plan.md`, `docs/open-questions.md`.
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-DogTrackin is a Kotlin Multiplatform (KMP) app targeting **Android** and **iOS**, with a shared Compose Multiplatform UI. All UI and business logic live in the shared `commonMain` source set; platform folders exist only for entry points and `expect`/`actual` implementations.
+Dog Trackin' is a **native Swift / SwiftUI** app for **iPhone, iPad and Apple TV only**. There is no Android
+and no cross-platform/shared-code layer — do not add any. Minimum OS is **iOS / iPadOS / tvOS 18**.
+Product intent and decisions live in `docs/product-spec.md`, `docs/implementation-plan.md` (ADRs, phases)
+and `docs/open-questions.md`.
 
-## Module Structure
+## Project generation (XcodeGen)
 
-The project is split into two Gradle modules:
+The Xcode project is **generated** from `project.yml` and is gitignored. Never hand-edit or commit
+`DogTrackin.xcodeproj`; change `project.yml` and run `xcodegen generate`. New source files under `App/`
+or `TV/` are picked up automatically on regeneration.
 
-- **`:composeApp`** — KMP library (`com.android.kotlin.multiplatform.library` + `kotlinMultiplatform`). Contains all shared code: `commonMain`, `androidMain` (platform actuals + Android-specific deps), `iosMain`, and `commonTest`. Produces the iOS static framework (`ComposeApp`).
-- **`:androidApp`** — Thin Android application (`com.android.application`). Contains only `MainActivity`, the `AndroidManifest.xml`, Android resources, and the Firebase `google-services`/`crashlytics` Gradle plugins. Depends on `:composeApp`.
+## Layout
 
-This split is required by AGP 9.0+, which no longer allows `com.android.application` and `kotlinMultiplatform` in the same module.
+- **`App/`** — `DogTrackin` iOS target (iPhone + iPad). `DogTrackinApp.swift` is the entry point; it
+  configures Firebase only if `GoogleService-Info.plist` is present, otherwise injects
+  `UnconfiguredAuthRepository`. Feature views live in `App/Sources/<Feature>/`. Firebase-backed repository
+  implementations also live here (e.g. `FirebaseAuthRepository`).
+- **`TV/`** — `DogTrackinTV` tvOS target. Read-only dashboard; intentionally has **no Firebase dependency**
+  (it will use a paired-token HTTPS endpoint, ADR-5).
+- **`Packages/DesignSystem`** — tokens (`Palette`, `DTColor`, `DTFont`, `DTSpacing`, `DTRadius`, `DTSize`),
+  SF Symbol `Glyph`s, and components (`BannerView`, `SinceTile`, button styles). Token values mirror
+  `docs/design-system/tokens.json`.
+- **`Packages/DogTrackinCore`** — pure Swift domain + feature models (`User`, `AuthError`, `AuthRepository`
+  protocol, `@Observable AuthModel`). **Must not import Firebase or UIKit.**
 
-## Common Commands
+## Architecture conventions
 
-Requires **JDK 17** (the toolchain configured in `composeApp/build.gradle.kts`; AGP 9 / Gradle 9 require JDK 17+). Use `./gradlew` on macOS/Linux, `.\gradlew.bat` on Windows.
+- Swift 6 language mode with strict concurrency. UI models are `@MainActor @Observable` classes, injected
+  with `.environment(_:)` and read with `@Environment(Type.self)`.
+- Backends sit behind protocols in `DogTrackinCore`; Firebase implementations live in the app target;
+  tests and previews use fakes (see `FakeAuthRepository` in `AuthModelTests`).
+- Async APIs return `Result<_, TypedError>` across the repository boundary; never `await` a Firestore write's
+  server acknowledgement in UI code (offline writes would hang — ADR-2).
+- Dependencies via Swift Package Manager only, declared in `project.yml` (`packages:`) or a local
+  `Package.swift`. Manual DI — no DI framework.
 
-- **Build Android debug APK**: `./gradlew :androidApp:assembleDebug`
-- **Run all common tests on every target**: `./gradlew :composeApp:allTests`
-- **Run JVM/Android unit tests**: `./gradlew :composeApp:testAndroidHostTest`
-- **Run a single test class**: `./gradlew :composeApp:testAndroidHostTest --tests "com.softwareofnote.dogtrackin.AuthViewModelTest"`
-- **iOS**: the iOS framework (`ComposeApp`, static) is produced by the Gradle build; build/run the `iosApp` Xcode project in `iosApp/` (or via the IDE's iosApp run configuration), which triggers the Gradle framework build automatically.
+## Design system rules
 
-## Architecture
+- Use `DTColor` / `DTFont` / `DTSpacing` tokens, never raw colours or point sizes.
+- **Lavender and sky are surfaces only; text and glyphs on them are always `DTColor.onAccent` (black).**
+  `ContrastTests` enforces WCAG AA for every text/background pair.
+- No red; destructive/critical uses the inverted ink/paper treatment. State is never colour-only.
+- Glyphs are SF Symbols via `Glyph` (which attaches accessibility labels); no bitmap illustrations.
+- System fonts via Apple text styles so Dynamic Type works.
 
-The codebase follows a **Clean Architecture** layering within feature packages under `composeApp/src/commonMain/kotlin/com/softwareofnote/dogtrackin/`. The `auth` feature is the reference example, split into three layers:
+## Common commands (macOS)
 
-- **`domain/`** — pure Kotlin: the `AuthRepository` interface, `User` model, and the `AuthResult` sealed class. No framework dependencies; this is what the rest of the code programs against.
-- **`data/`** — `FirebaseAuthRepository` implements `AuthRepository` against the Firebase backend.
-- **`presentation/`** — `AuthViewModel` (extends `androidx.lifecycle.ViewModel`, shared via KMP lifecycle libraries) plus Compose screens. UI state is exposed as a `StateFlow<AuthUiState>` (an `Idle`/`Loading`/`Success`/`Error` sealed class) and `StateFlow<User?>`.
+- Generate project: `xcodegen generate`
+- Build iOS: `xcodebuild build -project DogTrackin.xcodeproj -scheme DogTrackin -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`
+- Build tvOS: same with `-scheme DogTrackinTV -destination 'generic/platform=tvOS Simulator'`
+- Test a package: `cd Packages/DogTrackinCore && xcodebuild test -scheme DogTrackinCore -destination "id=$(../../scripts/pick-simulator.sh iOS)"`
 
-New features should mirror this `domain` / `data` / `presentation` package split.
-
-**App composition**: `App.kt` is the shared Compose root. It constructs `FirebaseAuthRepository`, wraps it in an `AuthViewModel`, and switches between `LoginScreen` and the authed content based on `currentUser`. Dependencies are wired manually here (`remember { FirebaseAuthRepository() }`) — there is no DI framework.
-
-**Platform entry points**: Android `MainActivity` (in `:androidApp`) and iOS `MainViewController()` (in `composeApp/src/iosMain/`) both simply call the shared `App()`. Platform-specific behavior uses the `expect`/`actual` pattern — see `Platform.kt` (expect) with `Platform.android.kt` / `Platform.ios.kt` (actual).
+Tests use **Swift Testing** (`import Testing`, `@Test`, `#expect`).
 
 ## Firebase
 
-Firebase (Auth, Firestore, Crashlytics, Analytics) is the backend. Note the **dual dependency setup** in `composeApp/build.gradle.kts`:
-
-- `commonMain` uses the **`dev.gitlive:firebase-*`** KMP wrappers — this is the API the shared code calls (e.g. `Firebase.auth`).
-- `composeApp`'s `androidMain` additionally pulls the **native Google `firebase-bom`** SDKs.
-- `:androidApp` applies the `google-services` and `firebase-crashlytics` Gradle plugins (which process `google-services.json`).
-
-Firebase config files (`google-services.json`, `GoogleService-Info.plist`) are not committed. `loginWithGoogle()` and `loginWithApple()` are currently stubbed and return an error. Wiring Firebase into the iOS app (SPM package + `GoogleService-Info.plist`) is documented in [docs/ios-firebase-setup.md](docs/ios-firebase-setup.md).
-
-## Conventions
-
-- Declare all dependencies via the version catalog `gradle/libs.versions.toml` (referenced as `libs.*`), not hardcoded coordinates where a catalog entry exists.
-- Keep logic in `commonMain`; only drop into `androidMain`/`iosMain` when a platform API is strictly required.
-- Tests live in `commonTest` using `kotlin.test` annotations. Follow `AuthViewModelTest` for the pattern: inject a fake repository (e.g. `FakeAuthRepository`) and drive coroutines with `runTest` + `advanceUntilIdle()`.
+Firebase (Auth now; Firestore, Cloud Functions, FCM, Crashlytics in later phases) via the
+`firebase-ios-sdk` SPM package. `GoogleService-Info.plist` is not committed — see
+`docs/ios-firebase-setup.md`. Sign in with Apple and Google currently return `.unavailable` (phase P1).

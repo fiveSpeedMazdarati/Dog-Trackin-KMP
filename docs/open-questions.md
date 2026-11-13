@@ -3,12 +3,18 @@
 Answers to these shape the spec, the plan and the estimates. Questions are grouped and roughly ordered by impact, with the most important first.
 
 ## A. Platform and technology
-- ~~Is Android still a goal?~~ **Answered: no. iOS-family only, pure Swift/SwiftUI, no shared code.**
-1. **Minimum iOS version?** Proposal: iOS/iPadOS/tvOS 17, for `@Observable`, interactive widgets and the newer SwiftUI `Map`.
-2. **Removing the existing Kotlin/Android project:** OK to delete `composeApp/`, `androidApp/`, Gradle and their CI jobs in P0? Should the repo be renamed (it's currently `Dog-Trackin-KMP`)?
-3. **How should the Xcode project be created:** by hand in Xcode, or generated from a text spec (XcodeGen or Tuist), which avoids merge conflicts in `project.pbxproj`?
-4. **Firebase Blaze plan:** server-side push fan-out needs Cloud Functions, which require pay-as-you-go billing. OK? Or would you rather avoid Firebase entirely (e.g. CloudKit; see section K)?
-5. **Apple Developer Program:** do you have a paid account? It's needed for push (APNs key), Sign in with Apple, TestFlight and the App Store.
+Answered:
+- ~~Android?~~ **No. iOS-family only, pure Swift/SwiftUI, no shared code.**
+- ~~Minimum OS?~~ **iOS/iPadOS/tvOS 18.**
+- ~~Delete the KMP project?~~ **Yes. Done.**
+- ~~How to create the Xcode project?~~ **XcodeGen.**
+- ~~Firebase or CloudKit?~~ **Firebase.**
+
+Still open:
+1. **Rename the GitHub repo?** It's still `Dog-Trackin-KMP`.
+2. **Firebase Blaze plan:** server-side push fan-out needs Cloud Functions, which require pay-as-you-go billing. OK?
+3. **Apple Developer Program:** do you have a paid account? It's needed for push (APNs key), Sign in with Apple, TestFlight and the App Store.
+4. **Firebase bundle ID:** is the Firebase iOS app registered as `com.softwareofnote.dogtrackin`? The old KMP shell used `com.softwareofnote.dogtrackin.DogTrackin<TEAM_ID>`.
 
 ## B. People and permissions
 6. **Can an animal have several owners?** If the only owner deletes their account, what happens to the dog and to everyone else's access?
@@ -57,15 +63,6 @@ Answers to these shape the spec, the plan and the estimates. Questions are group
 35. **No red at all,** including for delete or error? The design uses an inverted black/white treatment for danger.
 36. **Poop glyph:** as far as I know SF Symbols has no dedicated one. Options: a stand-in symbol (currently `leaf.fill`), a text label, or a custom SF Symbol (a vector glyph you design, which still counts as a glyph).
 37. **SF Pro Rounded** for the big "time since" numbers? Rounded fits a pet app. It's still a system font.
-
-## K. Backend alternative (new, now that this is Apple-only)
-45. **CloudKit instead of Firebase?** With no Android, Apple's CloudKit is an option. It has built-in sharing (`CKShare`) between Apple IDs, offline sync through `NSPersistentCloudKitContainer` / SwiftData, and no Google dependency or server bill for most usage. Trade-offs:
-    - Every caretaker needs an iCloud account.
-    - There's no email/password or Google login. CloudKit uses the device's Apple ID, which conflicts with your login requirements.
-    - Server-side logic, such as fan-out filtering, quiet hours or announcements targeting one user, is much harder.
-    - Temporary access with automatic expiry isn't built in.
-
-    My recommendation is to **stay on Firebase** because of the login requirements, but it's your call.
 
 ## J. Business, legal, operations
 38. **Free, paid or subscription?** This affects StoreKit work, whether the TV app is gated, and Firebase cost planning.

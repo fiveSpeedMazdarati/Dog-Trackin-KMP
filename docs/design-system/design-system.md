@@ -106,7 +106,7 @@ Numbers that change, such as "2 h 14 m ago", use **monospaced digits** (`.monosp
 ## 3. Glyphs
 
 Every glyph is an SF Symbol and always has an accessibility label (`Glyph.image` attaches it).
-**⚠ Every symbol name below needs to be checked in Apple's SF Symbols app against iOS/tvOS 17.**
+**⚠ Every symbol name below needs to be checked in Apple's SF Symbols app against iOS/tvOS 18.**
 The names are proposals; availability by OS version can't be confirmed from this environment. Rows marked ⚠ are
 known-uncertain stand-ins (`Glyph.needsReview == true` in code).
 

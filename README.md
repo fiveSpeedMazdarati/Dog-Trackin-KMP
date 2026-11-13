@@ -1,35 +1,52 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Dog Trackin'
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+A shared care log for your dog. Whenever anyone feeds, walks, lets out or medicates the dog,
+everyone else caring for that dog is notified. Native **Swift / SwiftUI** for iPhone, iPad and Apple TV.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+- Product spec: [docs/product-spec.md](docs/product-spec.md)
+- Implementation plan: [docs/implementation-plan.md](docs/implementation-plan.md)
+- Design system: [docs/design-system/design-system.md](docs/design-system/design-system.md)
+- Open questions: [docs/open-questions.md](docs/open-questions.md)
 
-### Build and Run Android Application
+## Requirements
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+- macOS with **Xcode 16 or later** (iOS/tvOS 18 SDK, Swift 6)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
 
-### Build and Run iOS Application
+## Getting started
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+```sh
+xcodegen generate          # creates DogTrackin.xcodeproj from project.yml
+open DogTrackin.xcodeproj
+```
 
----
+The `.xcodeproj` is generated and gitignored. Edit `project.yml`, not the project, and re-run
+`xcodegen generate` after pulling changes or adding/removing files.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Optional local setup:
+- **Signing:** create `Configs/Local.xcconfig` containing `DEVELOPMENT_TEAM = <your Team ID>`.
+- **Firebase:** add `App/Resources/GoogleService-Info.plist`; see [docs/ios-firebase-setup.md](docs/ios-firebase-setup.md).
+  Without it the app still builds and runs, but sign-in reports that Firebase isn't configured.
+
+## Layout
+
+| Path | What |
+|---|---|
+| `project.yml` | XcodeGen spec: targets `DogTrackin` (iPhone + iPad) and `DogTrackinTV` (tvOS) |
+| `App/` | iOS app target: entry point, feature views, Firebase-backed repositories |
+| `TV/` | tvOS dashboard target (no Firebase dependency) |
+| `Packages/DesignSystem` | Colour tokens, type scale, SF Symbol glyphs, components, contrast tests |
+| `Packages/DogTrackinCore` | Pure-Swift domain and feature models (no Firebase/UIKit), with tests |
+| `Configs/` | Shared `.xcconfig`; personal `Local.xcconfig` is gitignored |
+| `scripts/` | CI helpers |
+
+## Tests
+
+Package tests run on a simulator:
+
+```sh
+cd Packages/DogTrackinCore
+xcodebuild test -scheme DogTrackinCore -destination 'platform=iOS Simulator,name=<any installed iPhone>'
+```
+
+Or open the package (or the generated project) in Xcode and press ⌘U.

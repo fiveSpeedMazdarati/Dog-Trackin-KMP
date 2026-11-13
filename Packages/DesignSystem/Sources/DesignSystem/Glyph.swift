@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Glyph tokens backed by SF Symbols (design-system.md §3).
 ///
-/// Every symbol name is a PROPOSAL to be checked in Apple's SF Symbols app against iOS/tvOS 17.
+/// Every symbol name is a PROPOSAL to be checked in Apple's SF Symbols app against iOS/tvOS 18.
 /// Cases where `needsReview` is true are known-uncertain stand-ins.
 public enum Glyph: String, CaseIterable, Sendable {
     case animal, pee, poop, meal, water, medication, walk, outside, treat, grooming, vet, note

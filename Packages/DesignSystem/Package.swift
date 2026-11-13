@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "DesignSystem",
-    platforms: [.iOS(.v17), .tvOS(.v17)],
+    platforms: [.iOS(.v18), .tvOS(.v18)],
     products: [
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
     ],
