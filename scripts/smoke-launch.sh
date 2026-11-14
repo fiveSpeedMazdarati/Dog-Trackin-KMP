@@ -35,6 +35,14 @@ for appearance in light dark; do
   fi
   xcrun simctl io "$sim" screenshot "$out/${slug}-${appearance}.png"
   echo "Saved $out/${slug}-${appearance}.png"
+
+  # Also print a small JPEG preview into the log (base64, between markers) so the
+  # screenshots can be read from the job log without downloading the artifact.
+  preview="$out/${slug}-${appearance}-preview.jpg"
+  sips -Z 900 -s format jpeg -s formatOptions 70 "$out/${slug}-${appearance}.png" --out "$preview" >/dev/null
+  echo "BEGIN-SCREENSHOT ${slug}-${appearance}"
+  base64 -i "$preview" | fold -w 4000
+  echo "END-SCREENSHOT ${slug}-${appearance}"
 done
 
 xcrun simctl shutdown "$sim" || true
