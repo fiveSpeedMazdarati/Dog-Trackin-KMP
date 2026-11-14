@@ -27,7 +27,10 @@ for appearance in light dark; do
   xcrun simctl ui "$sim" appearance "$appearance"
   xcrun simctl launch --terminate-running-process "$sim" "$bundle_id"
   sleep 8   # let SwiftUI render the first screen
-  if ! xcrun simctl spawn "$sim" launchctl list | grep -q "$bundle_id"; then
+  # Capture first, then search: piping straight into `grep -q` makes launchctl die
+  # with SIGPIPE when grep exits early, which `pipefail` reports as a failure.
+  services=$(xcrun simctl spawn "$sim" launchctl list)
+  if ! grep -q "$bundle_id" <<<"$services"; then
     echo "::error::$bundle_id is not running on $name ($appearance) — it probably crashed on launch."
     xcrun simctl spawn "$sim" log show --last 2m --style compact \
       --predicate "process == \"DogTrackin\"" | tail -n 80 || true
