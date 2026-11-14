@@ -1,0 +1,7 @@
+// Shared build settings for all targets. Personal values (your Apple Developer
+// Team ID) go in Configs/Local.xcconfig, which is gitignored:
+//
+//   DEVELOPMENT_TEAM = ABCDE12345
+//
+DEVELOPMENT_TEAM =
+#include? "Local.xcconfig"
