@@ -61,9 +61,26 @@ jobs:
             -project DogTrackin.xcodeproj \
             -scheme DogTrackin \
             -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
+
+      # Launch the built app on iPhone + iPad simulators: fails if it crashes on
+      # launch, and saves light/dark screenshots as a downloadable artifact.
+      - name: Smoke-launch on iPhone
+        run: scripts/smoke-launch.sh build/Build/Products/Debug-iphonesimulator/DogTrackin.app com.softwareofnote.dogtrackin iPhone screenshots
+
+      - name: Smoke-launch on iPad
+        run: scripts/smoke-launch.sh build/Build/Products/Debug-iphonesimulator/DogTrackin.app com.softwareofnote.dogtrackin iPad screenshots
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: ignore
 
       - name: Build tvOS app (Simulator)
         run: |
