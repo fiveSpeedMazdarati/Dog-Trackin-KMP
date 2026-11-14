@@ -1,0 +1,58 @@
+name: Screenshots
+
+# On demand only (it boots fresh simulators, which adds ~20 minutes):
+#   - add the `screenshots` label to a pull request (remove and re-add to run again), or
+#   - Actions tab → Screenshots → "Run workflow" (available once this file is on main).
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [ labeled ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Launch + screenshots (iPhone, iPad)
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'screenshots'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build iOS app (Simulator)
+        run: |
+          xcodebuild build \
+            -project DogTrackin.xcodeproj \
+            -scheme DogTrackin \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO
+
+      # Fails if the app crashes on launch; saves light/dark screenshots and prints
+      # small base64 previews into the log.
+      - name: Smoke-launch on iPhone
+        run: scripts/smoke-launch.sh build/Build/Products/Debug-iphonesimulator/DogTrackin.app com.softwareofnote.dogtrackin iPhone screenshots
+
+      - name: Smoke-launch on iPad
+        run: scripts/smoke-launch.sh build/Build/Products/Debug-iphonesimulator/DogTrackin.app com.softwareofnote.dogtrackin iPad screenshots
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: ignore

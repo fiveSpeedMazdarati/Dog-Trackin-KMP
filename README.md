@@ -50,3 +50,10 @@ xcodebuild test -scheme DogTrackinCore -destination 'platform=iOS Simulator,name
 ```
 
 Or open the package (or the generated project) in Xcode and press ⌘U.
+
+## Screenshots (on demand)
+
+CI does not launch the app on every push. To get light/dark screenshots on iPhone and iPad
+(and a crash-on-launch check), add the **`screenshots`** label to a pull request (remove and re-add
+it to run again), or use **Actions → Screenshots → Run workflow**. The images are attached to the
+run as the `screenshots` artifact.

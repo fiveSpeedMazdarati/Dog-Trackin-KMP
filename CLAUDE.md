@@ -56,6 +56,8 @@ or `TV/` are picked up automatically on regeneration.
 - Build tvOS: same with `-scheme DogTrackinTV -destination 'generic/platform=tvOS Simulator'`
 - Test a package: `cd Packages/DogTrackinCore && xcodebuild test -scheme DogTrackinCore -destination "id=$(../../scripts/pick-simulator.sh iOS)"`
 
+Simulator launch + screenshots run only on demand via `.github/workflows/screenshots.yml` (PR label `screenshots`, or workflow_dispatch); `scripts/smoke-launch.sh` also prints base64 JPEG previews between `BEGIN-SCREENSHOT`/`END-SCREENSHOT` markers in the job log.
+
 Tests use **Swift Testing** (`import Testing`, `@Test`, `#expect`).
 
 ## Firebase
